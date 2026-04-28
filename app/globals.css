@@ -1,0 +1,152 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  color-scheme: light;
+  --brand: #2563EB;
+  --brand-dark: #1D4ED8;
+  --ink: #0F172A;
+  --muted: #64748B;
+  --border: #E5E7EB;
+  --surface: #FFFFFF;
+  --surface-2: #F7F8FA;
+  --surface-3: #EEF2F7;
+  --success: #059669;
+  --warn: #B45309;
+  --danger: #DC2626;
+}
+
+html, body {
+  background: #FFFFFF;
+  color: var(--ink);
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+}
+body {
+  font-feature-settings: "ss01", "cv11";
+}
+
+::-webkit-scrollbar { width: 10px; height: 10px; }
+::-webkit-scrollbar-thumb { background: #CBD5E1; border-radius: 10px; border: 2px solid var(--surface-2); }
+::-webkit-scrollbar-thumb:hover { background: #94A3B8; }
+::-webkit-scrollbar-track { background: transparent; }
+
+::selection { background: rgba(37,99,235,0.18); color: var(--ink); }
+
+/* Brand gradient used sparingly for big headings */
+.gradient-text {
+  background: linear-gradient(120deg, #1D4ED8 0%, #2563EB 60%, #0EA5E9 100%);
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+.subtle-grid {
+  background-image:
+    linear-gradient(to right, rgba(15,23,42,0.04) 1px, transparent 1px),
+    linear-gradient(to bottom, rgba(15,23,42,0.04) 1px, transparent 1px);
+  background-size: 48px 48px;
+}
+.divider-fade {
+  background: linear-gradient(to right, transparent, rgba(15,23,42,0.08), transparent);
+  height: 1px;
+}
+
+/* Cards — soft elevation, no hard outline */
+.card {
+  background: var(--surface);
+  border: 1px solid rgba(15,23,42,0.04);
+  border-radius: 14px;
+  box-shadow:
+    0 1px 2px rgba(15,23,42,0.04),
+    0 4px 12px -6px rgba(15,23,42,0.06);
+}
+.card-hover {
+  transition: transform 180ms ease, box-shadow 220ms ease;
+}
+.card-hover:hover {
+  box-shadow:
+    0 2px 4px rgba(15,23,42,0.04),
+    0 14px 30px -12px rgba(37,99,235,0.18),
+    0 4px 10px -4px rgba(15,23,42,0.08);
+  transform: translateY(-2px);
+}
+
+/* Subtle divider — replaces harsh 1px borders inside cards */
+.hairline {
+  border: 0;
+  height: 1px;
+  background: linear-gradient(to right, transparent, rgba(15,23,42,0.08), transparent);
+}
+
+/* Primary button — solid brand blue */
+.btn-primary {
+  background: var(--brand);
+  color: #FFFFFF;
+  font-weight: 600;
+  border-radius: 10px;
+  padding: 0.65rem 1.1rem;
+  box-shadow: 0 1px 2px rgba(15,23,42,0.08);
+  transition: background 150ms ease, transform 120ms ease, box-shadow 150ms ease;
+  border: 1px solid var(--brand);
+}
+.btn-primary:hover {
+  background: var(--brand-dark);
+  border-color: var(--brand-dark);
+  box-shadow: 0 6px 16px -6px rgba(37,99,235,0.45);
+}
+.btn-primary:active { transform: translateY(0.5px); }
+
+.btn-secondary {
+  background: #FFFFFF;
+  color: var(--ink);
+  border: 1px solid rgba(15,23,42,0.08);
+  border-radius: 10px;
+  padding: 0.6rem 1rem;
+  font-weight: 500;
+  box-shadow: 0 1px 2px rgba(15,23,42,0.04);
+  transition: background 150ms ease, box-shadow 150ms ease;
+}
+.btn-secondary:hover {
+  background: var(--surface-3);
+  box-shadow: 0 3px 8px -3px rgba(15,23,42,0.10);
+}
+
+.kbd {
+  font-family: ui-monospace, SFMono-Regular, monospace;
+  font-size: 11px;
+  padding: 2px 6px;
+  border-radius: 6px;
+  background: var(--surface-3);
+  border: 1px solid var(--border);
+  color: #475569;
+}
+
+.dot-typing { display: inline-flex; gap: 4px; }
+.dot-typing span {
+  width: 6px;
+  height: 6px;
+  background: var(--brand);
+  border-radius: 9999px;
+  animation: pulseSoft 1.4s infinite ease-in-out;
+}
+.dot-typing span:nth-child(2) { animation-delay: 0.2s; }
+.dot-typing span:nth-child(3) { animation-delay: 0.4s; }
+
+/* Zillow-style listing helpers */
+.pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 11px;
+  font-weight: 600;
+  padding: 3px 8px;
+  border-radius: 999px;
+  background: rgba(37,99,235,0.08);
+  color: var(--brand);
+}
+.pill-red { background: rgba(220,38,38,0.08); color: #B91C1C; }
+.pill-green { background: rgba(5,150,105,0.09); color: #047857; }
+.pill-amber { background: rgba(180,83,9,0.09); color: #92400E; }
+.pill-slate { background: #F1F5F9; color: #475569; }
