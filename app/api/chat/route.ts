@@ -1,45 +1,36 @@
+// Thin route handler — all logic lives in backend/ai/chat.ts.
 import { NextRequest } from "next/server";
-import Anthropic from "@anthropic-ai/sdk";
-import { getScenario } from "@/lib/scenarios";
+import { processChat } from "@/backend/ai/chat";
+import { isConfigured, NOT_CONFIGURED_RESPONSE } from "@/backend/ai/client";
+import { rateLimit, validateMessages, validateSlug, TOO_MANY } from "@/backend/ai/guard";
 
 export const runtime = "nodejs";
 
-const client = new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY });
-
-type Msg = { role: "user" | "assistant"; content: string };
-
 export async function POST(req: NextRequest) {
-  try {
-    if (!process.env.ANTHROPIC_API_KEY) {
-      return Response.json(
-        { error: "AI roleplay not configured on this deployment. The owner needs to add ANTHROPIC_API_KEY in Vercel → Settings → Environment Variables." },
-        { status: 503 }
-      );
-    }
-    const { slug, messages } = (await req.json()) as {
-      slug: string;
-      messages: Msg[];
-    };
-
-    const scenario = getScenario(slug);
-    if (!scenario) {
-      return Response.json({ error: "Scenario not found" }, { status: 404 });
-    }
-
-    const response = await client.messages.create({
-      model: "claude-haiku-4-5-20251001",
-      max_tokens: 400,
-      system: scenario.systemPrompt,
-      messages: messages.map((m) => ({ role: m.role, content: m.content })),
+  if (!isConfigured()) {
+    return Response.json(NOT_CONFIGURED_RESPONSE, { status: 503 });
+  }
+  const limit = rateLimit(req);
+  if (!limit.ok) {
+    return Response.json(TOO_MANY(limit.retryAfter ?? 60), {
+      status: 429,
+      headers: { "Retry-After": String(limit.retryAfter ?? 60) },
     });
-
-    const text =
-      response.content
-        .filter((b) => b.type === "text")
-        .map((b: any) => b.text)
-        .join("") || "";
-
-    return Response.json({ message: text });
+  }
+  try {
+    const body = await req.json();
+    if (!validateSlug(body?.slug)) {
+      return Response.json({ error: "Invalid scenario slug" }, { status: 400 });
+    }
+    const v = validateMessages(body?.messages);
+    if (!v.ok) {
+      return Response.json({ error: v.error }, { status: 400 });
+    }
+    const result = await processChat(body.slug, v.messages);
+    if ("error" in result) {
+      return Response.json({ error: result.error }, { status: result.status });
+    }
+    return Response.json(result);
   } catch (err: any) {
     console.error("chat error", err);
     return Response.json(

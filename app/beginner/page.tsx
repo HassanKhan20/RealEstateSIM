@@ -1,6 +1,6 @@
-import Nav from "@/components/Nav";
-import Footer from "@/components/Footer";
-import BeginnerView from "@/components/BeginnerView";
+import Nav from "@/frontend/components/shared/Nav";
+import Footer from "@/frontend/components/landing/Footer";
+import BeginnerView from "@/frontend/components/feature/BeginnerView";
 
 export const metadata = { title: "Beginner Mode — RealEstateSIM" };
 

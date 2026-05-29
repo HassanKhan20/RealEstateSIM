@@ -1,6 +1,6 @@
-import Nav from "@/components/Nav";
-import Footer from "@/components/Footer";
-import ExamTrainer from "@/components/ExamTrainer";
+import Nav from "@/frontend/components/shared/Nav";
+import Footer from "@/frontend/components/landing/Footer";
+import ExamTrainer from "@/frontend/components/feature/ExamTrainer";
 
 export const metadata = { title: "Exam Prep — RealEstateSIM" };
 

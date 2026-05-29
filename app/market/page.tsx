@@ -1,13 +1,13 @@
 import Link from "next/link";
-import Nav from "@/components/Nav";
-import Footer from "@/components/Footer";
-import MarketBrowser from "@/components/MarketBrowser";
-import { PROPERTIES } from "@/lib/properties";
+import Nav from "@/frontend/components/shared/Nav";
+import Footer from "@/frontend/components/landing/Footer";
+import MarketBrowser from "@/frontend/components/feature/MarketBrowser";
+import { PROPERTIES } from "@/shared/properties";
 
 export const metadata = {
   title: "Market — RealEstateSIM",
   description:
-    "Browse Tampa-area synthetic listings. Run the numbers before you own them.",
+    "Browse synthetic listings across Tampa, Phoenix, and Austin. Run the numbers before you own them.",
 };
 
 export default function MarketPage() {

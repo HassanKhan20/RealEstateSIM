@@ -1,6 +1,6 @@
-import Nav from "@/components/Nav";
-import Footer from "@/components/Footer";
-import PortfolioView from "@/components/PortfolioView";
+import Nav from "@/frontend/components/shared/Nav";
+import Footer from "@/frontend/components/landing/Footer";
+import PortfolioView from "@/frontend/components/feature/PortfolioView";
 
 export const metadata = { title: "Portfolio — RealEstateSIM" };
 

@@ -1,6 +1,6 @@
 import { notFound } from "next/navigation";
-import { getScenario, SCENARIOS } from "@/lib/scenarios";
-import ChatInterface from "@/components/ChatInterface";
+import { getScenario, SCENARIOS } from "@/shared/scenarios";
+import ChatInterface from "@/frontend/components/feature/ChatInterface";
 
 export function generateStaticParams() {
   return SCENARIOS.map((s) => ({ slug: s.slug }));

@@ -1,0 +1,778 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Estatify — Architecture Deck</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Playfair+Display:ital,wght@0,400;0,500;1,400&family=JetBrains+Mono:wght@400;500;600&display=swap');
+
+  :root {
+    --ink: #0F172A;
+    --ink-2: #1E293B;
+    --soft: #334155;
+    --muted: #64748B;
+    --light: #94A3B8;
+    --rule: #E2E8F0;
+    --bg: #FFFFFF;
+    --bg-soft: #F7F8FA;
+    --brand: #2563EB;
+    --brand-dark: #1D4ED8;
+    --teal: #0F766E;
+    --green: #059669;
+    --amber: #B45309;
+    --red: #DC2626;
+    --purple: #8B5CF6;
+    --cyan: #0EA5E9;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  html, body {
+    font-family: 'Inter', system-ui, sans-serif;
+    color: var(--ink);
+    background: var(--bg);
+    line-height: 1.5;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  /* SLIDE — each section fills the viewport */
+  .slide {
+    min-height: 100vh;
+    padding: 6vh 8vw;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    border-bottom: 1px solid var(--rule);
+    position: relative;
+  }
+  .slide-number {
+    position: absolute;
+    top: 4vh;
+    right: 8vw;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 12px;
+    color: var(--light);
+    letter-spacing: 0.18em;
+  }
+  .slide-kicker {
+    font-size: 12px;
+    text-transform: uppercase;
+    letter-spacing: 0.28em;
+    color: var(--brand);
+    font-weight: 600;
+    margin-bottom: 14px;
+  }
+  h1 { font-family: 'Playfair Display', serif; font-weight: 500; font-size: 8vw; line-height: 0.98; letter-spacing: -0.02em; }
+  h2 { font-family: 'Playfair Display', serif; font-weight: 500; font-size: 4.5vw; line-height: 1.05; letter-spacing: -0.01em; }
+  h3 { font-size: 22px; font-weight: 600; }
+  p { color: var(--soft); font-size: 20px; line-height: 1.55; max-width: 800px; }
+
+  /* COVER */
+  .cover {
+    background: linear-gradient(180deg, #0B1620 0%, #1A2836 100%);
+    color: white;
+  }
+  .cover .slide-kicker { color: rgba(255,255,255,0.6); }
+  .cover h1 { color: white; font-size: 11vw; }
+  .cover .cover-sub {
+    font-family: 'Playfair Display', serif;
+    font-style: italic;
+    color: rgba(255,255,255,0.7);
+    font-size: 28px;
+    margin-top: 16px;
+  }
+  .cover-meta {
+    margin-top: 8vh;
+    display: flex;
+    gap: 48px;
+    color: rgba(255,255,255,0.6);
+    font-size: 13px;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+  }
+  .cover-meta strong { color: white; font-weight: 600; display: block; margin-bottom: 4px; }
+
+  /* PROBLEM SLIDE */
+  .big-stat {
+    font-family: 'Playfair Display', serif;
+    font-size: 22vw;
+    font-weight: 500;
+    line-height: 0.9;
+    background: linear-gradient(180deg, var(--ink) 0%, var(--muted) 100%);
+    -webkit-background-clip: text;
+    background-clip: text;
+    -webkit-text-fill-color: transparent;
+  }
+  .stat-label {
+    font-size: 24px;
+    color: var(--soft);
+    max-width: 700px;
+    margin-top: 24px;
+  }
+
+  /* THREE-COL */
+  .three-col {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 32px;
+    margin-top: 48px;
+  }
+  .card {
+    background: var(--bg-soft);
+    border-radius: 16px;
+    padding: 32px;
+  }
+  .card-emoji { font-size: 38px; margin-bottom: 16px; }
+  .card-title {
+    font-family: 'Playfair Display', serif;
+    font-size: 26px;
+    font-weight: 500;
+    margin-bottom: 8px;
+  }
+  .card-text { color: var(--soft); font-size: 15px; line-height: 1.5; }
+
+  /* ARCHITECTURE DIAGRAM */
+  .arch-wrap {
+    margin-top: 36px;
+    display: grid;
+    grid-template-columns: 2fr 1fr;
+    gap: 48px;
+    align-items: center;
+  }
+  .arch-svg { width: 100%; height: auto; }
+  .arch-notes h4 {
+    font-size: 13px;
+    text-transform: uppercase;
+    letter-spacing: 0.18em;
+    color: var(--muted);
+    margin-bottom: 10px;
+    margin-top: 18px;
+  }
+  .arch-notes h4:first-child { margin-top: 0; }
+  .arch-notes p { font-size: 16px; margin-bottom: 4px; }
+
+  /* FOLDER CARDS */
+  .folder-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 24px;
+    margin-top: 36px;
+  }
+  .folder {
+    border-radius: 14px;
+    padding: 28px;
+    color: white;
+    position: relative;
+    overflow: hidden;
+  }
+  .folder.app    { background: linear-gradient(135deg, #0F172A 0%, #1E293B 100%); }
+  .folder.front  { background: linear-gradient(135deg, #2563EB 0%, #1D4ED8 100%); }
+  .folder.back   { background: linear-gradient(135deg, #0F766E 0%, #0D5F58 100%); }
+  .folder.shared { background: linear-gradient(135deg, #8B5CF6 0%, #7C3AED 100%); }
+
+  .folder-name {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 20px;
+    font-weight: 600;
+    margin-bottom: 8px;
+  }
+  .folder-role {
+    font-size: 14px;
+    opacity: 0.85;
+    margin-bottom: 16px;
+  }
+  .folder-files {
+    list-style: none;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 12px;
+    opacity: 0.85;
+  }
+  .folder-files li { padding: 4px 0; }
+
+  /* DATA FLOW */
+  .flow-steps {
+    margin-top: 40px;
+    display: grid;
+    gap: 14px;
+  }
+  .flow-step {
+    display: grid;
+    grid-template-columns: 60px 1fr;
+    gap: 24px;
+    align-items: center;
+    padding: 18px 24px;
+    background: var(--bg-soft);
+    border-radius: 12px;
+  }
+  .flow-num {
+    width: 44px;
+    height: 44px;
+    border-radius: 50%;
+    background: var(--ink);
+    color: white;
+    display: grid;
+    place-items: center;
+    font-family: 'JetBrains Mono', monospace;
+    font-weight: 600;
+    font-size: 14px;
+  }
+  .flow-action {
+    font-size: 16px;
+    font-weight: 500;
+    color: var(--ink);
+  }
+  .flow-file {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 12px;
+    color: var(--muted);
+    margin-top: 2px;
+    display: block;
+  }
+
+  /* CODE SLIDE */
+  .code-layout {
+    margin-top: 36px;
+    display: grid;
+    grid-template-columns: 1.4fr 1fr;
+    gap: 48px;
+    align-items: start;
+  }
+  pre.code-block {
+    background: #0F172A;
+    color: #E2E8F0;
+    border-radius: 14px;
+    padding: 28px 30px;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 13px;
+    line-height: 1.7;
+    overflow-x: auto;
+    white-space: pre;
+    tab-size: 2;
+    margin: 0;
+    box-shadow: 0 20px 60px -20px rgba(15,23,42,0.4);
+  }
+  .code-block .com { color: #64748B; font-style: italic; }
+  .code-block .kw  { color: #C084FC; }
+  .code-block .ty  { color: #34D399; }
+  .code-block .fn  { color: #60A5FA; }
+  .code-block .str { color: #FBBF24; }
+  .code-block .num { color: #F472B6; }
+
+  .speaker-notes h4 {
+    font-size: 12px;
+    text-transform: uppercase;
+    letter-spacing: 0.22em;
+    color: var(--brand);
+    margin-bottom: 12px;
+    margin-top: 20px;
+  }
+  .speaker-notes h4:first-child { margin-top: 0; }
+  .speaker-notes p { font-size: 15px; line-height: 1.55; margin-bottom: 8px; }
+
+  /* AI SLIDE */
+  .ai-grid {
+    margin-top: 48px;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 32px;
+  }
+  .ai-card {
+    border-radius: 16px;
+    padding: 36px;
+    background: linear-gradient(180deg, var(--bg-soft) 0%, white 100%);
+    border: 1px solid var(--rule);
+  }
+  .ai-model {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 13px;
+    color: var(--brand);
+    margin-bottom: 8px;
+    text-transform: uppercase;
+    letter-spacing: 0.14em;
+  }
+  .ai-name {
+    font-family: 'Playfair Display', serif;
+    font-size: 32px;
+    margin-bottom: 12px;
+  }
+  .ai-list { list-style: none; }
+  .ai-list li {
+    padding: 8px 0;
+    border-top: 1px dashed var(--rule);
+    color: var(--soft);
+    font-size: 15px;
+  }
+  .ai-list li:first-child { border-top: 0; }
+  .ai-list strong { color: var(--ink); }
+
+  /* TICKETS */
+  .tickets {
+    margin-top: 36px;
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 16px;
+  }
+  .ticket {
+    background: white;
+    border: 1px solid var(--rule);
+    border-radius: 12px;
+    padding: 20px 24px;
+    transition: transform 200ms ease, box-shadow 200ms ease, border-color 200ms ease;
+  }
+  .ticket-num {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+    color: var(--muted);
+    margin-bottom: 6px;
+  }
+  .ticket-title {
+    font-size: 17px;
+    font-weight: 600;
+    margin-bottom: 6px;
+    color: var(--ink);
+  }
+  .ticket-file {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+    color: var(--brand);
+    margin-bottom: 6px;
+  }
+  .ticket-blurb { font-size: 13px; color: var(--soft); }
+
+  /* CLOSING */
+  .closing {
+    background: linear-gradient(135deg, #0B1620 0%, #1A2836 50%, #0F172A 100%);
+    color: white;
+    text-align: center;
+  }
+  .closing h2 {
+    color: white;
+    font-size: 6vw;
+    margin-bottom: 24px;
+  }
+  .closing p {
+    color: rgba(255,255,255,0.7);
+    font-size: 22px;
+    max-width: 700px;
+    margin: 0 auto;
+  }
+  .closing .signoff {
+    margin-top: 60px;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 12px;
+    letter-spacing: 0.24em;
+    text-transform: uppercase;
+    color: rgba(255,255,255,0.4);
+  }
+
+  /* responsive bits */
+  @media (max-width: 900px) {
+    .three-col, .arch-wrap, .code-layout, .ai-grid, .tickets, .folder-grid { grid-template-columns: 1fr; }
+    h1 { font-size: 16vw; }
+    h2 { font-size: 9vw; }
+    .big-stat { font-size: 40vw; }
+  }
+</style>
+</head>
+<body>
+
+<!-- ============================================================== -->
+<!-- 01 COVER -->
+<!-- ============================================================== -->
+<section class="slide cover">
+  <div class="slide-number">01 / 08</div>
+  <div class="slide-kicker">Architecture deck · Engineering team</div>
+  <h1>Estatify.</h1>
+  <div class="cover-sub">Practice the deal before it&rsquo;s real.</div>
+  <div class="cover-meta">
+    <div><strong>Hassan Khan</strong>Founder</div>
+    <div><strong>Today</strong>Architecture walk-through</div>
+    <div><strong>Outcome</strong>You leave with a ticket</div>
+  </div>
+</section>
+
+<!-- ============================================================== -->
+<!-- 02 THE PROBLEM -->
+<!-- ============================================================== -->
+<section class="slide">
+  <div class="slide-number">02 / 08</div>
+  <div class="slide-kicker">The problem</div>
+  <h2>Real estate has a teaching problem.</h2>
+  <div style="display: flex; align-items: end; gap: 48px; margin-top: 36px; flex-wrap: wrap;">
+    <div class="big-stat">75%</div>
+    <div class="stat-label">
+      of new real estate agents quit within their first year.<br /><br />
+      They spend $400 on a license, $300/mo on tools, walk into their first cold call having never practiced, get hung up on &mdash; and they&rsquo;re done.
+    </div>
+  </div>
+</section>
+
+<!-- ============================================================== -->
+<!-- 03 WHAT WE BUILT -->
+<!-- ============================================================== -->
+<section class="slide">
+  <div class="slide-number">03 / 08</div>
+  <div class="slide-kicker">What we built</div>
+  <h2>The flight simulator they never had.</h2>
+  <p style="margin-top: 16px;">Three connected tracks. Bundled. Nobody does all three.</p>
+  <div class="three-col">
+    <div class="card">
+      <div class="card-emoji">🎙️</div>
+      <div class="card-title">Agent Simulations</div>
+      <div class="card-text">AI roleplay against 5 real estate personas &mdash; motivated seller, cash buyer, FSBO, lowballer, panicked first-time buyer. Claude grades you on rapport, discovery, objections, close.</div>
+    </div>
+    <div class="card">
+      <div class="card-emoji">📊</div>
+      <div class="card-title">Paper Trading</div>
+      <div class="card-text">28 synthetic Tampa listings with real math. Run cap rate, DSCR, cash-on-cash live across 4 strategies. Buy with paper money. Watch your portfolio age over years.</div>
+    </div>
+    <div class="card">
+      <div class="card-emoji">📚</div>
+      <div class="card-title">Exam Prep</div>
+      <div class="card-text">AI-generated scenario-first practice questions across 9 licensing topics. Explanations, not just right/wrong. Pre-license pass rates are ~50% &mdash; we close that gap.</div>
+    </div>
+  </div>
+</section>
+
+<!-- ============================================================== -->
+<!-- 04 ARCHITECTURE DIAGRAM -->
+<!-- ============================================================== -->
+<section class="slide">
+  <div class="slide-number">04 / 08</div>
+  <div class="slide-kicker">System architecture</div>
+  <h2>Four folders. One job each.</h2>
+
+  <div class="arch-wrap">
+    <!-- SVG ARCHITECTURE DIAGRAM -->
+    <svg class="arch-svg" viewBox="0 0 800 540" xmlns="http://www.w3.org/2000/svg">
+      <defs>
+        <linearGradient id="appG" x1="0" y1="0" x2="0" y2="1">
+          <stop offset="0%" stop-color="#1E293B"/><stop offset="100%" stop-color="#0F172A"/>
+        </linearGradient>
+        <linearGradient id="feG" x1="0" y1="0" x2="0" y2="1">
+          <stop offset="0%" stop-color="#3B82F6"/><stop offset="100%" stop-color="#1D4ED8"/>
+        </linearGradient>
+        <linearGradient id="beG" x1="0" y1="0" x2="0" y2="1">
+          <stop offset="0%" stop-color="#10B981"/><stop offset="100%" stop-color="#0F766E"/>
+        </linearGradient>
+        <linearGradient id="shG" x1="0" y1="0" x2="0" y2="1">
+          <stop offset="0%" stop-color="#A78BFA"/><stop offset="100%" stop-color="#8B5CF6"/>
+        </linearGradient>
+        <marker id="arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto">
+          <path d="M 0 0 L 10 5 L 0 10 z" fill="#94A3B8"/>
+        </marker>
+        <marker id="arrowD" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto">
+          <path d="M 0 0 L 10 5 L 0 10 z" fill="#475569"/>
+        </marker>
+      </defs>
+
+      <!-- BROWSER -->
+      <rect x="40" y="30" width="320" height="50" rx="25" fill="white" stroke="#CBD5E1" stroke-width="1.5"/>
+      <circle cx="60" cy="55" r="4" fill="#EF4444"/>
+      <circle cx="74" cy="55" r="4" fill="#F59E0B"/>
+      <circle cx="88" cy="55" r="4" fill="#10B981"/>
+      <text x="200" y="60" text-anchor="middle" font-family="Inter" font-size="13" fill="#64748B">estatify.com / browser</text>
+
+      <!-- APP -->
+      <rect x="40" y="120" width="320" height="90" rx="14" fill="url(#appG)"/>
+      <text x="60" y="148" font-family="JetBrains Mono" font-weight="600" font-size="14" fill="white">app/</text>
+      <text x="60" y="168" font-family="Inter" font-size="11" fill="rgba(255,255,255,0.7)">Next.js routes — page.tsx, api/*/route.ts</text>
+      <text x="60" y="186" font-family="Inter" font-size="11" fill="rgba(255,255,255,0.7)">Thin handlers; no business logic.</text>
+
+      <!-- FRONTEND -->
+      <rect x="40" y="240" width="320" height="120" rx="14" fill="url(#feG)"/>
+      <text x="60" y="268" font-family="JetBrains Mono" font-weight="600" font-size="14" fill="white">frontend/</text>
+      <text x="60" y="288" font-family="Inter" font-size="11" fill="rgba(255,255,255,0.8)">All client UI + browser state</text>
+      <text x="60" y="312" font-family="JetBrains Mono" font-size="10" fill="rgba(255,255,255,0.7)">components/landing/</text>
+      <text x="60" y="328" font-family="JetBrains Mono" font-size="10" fill="rgba(255,255,255,0.7)">components/feature/</text>
+      <text x="60" y="344" font-family="JetBrains Mono" font-size="10" fill="rgba(255,255,255,0.7)">components/shared/  ·  lib/store.ts</text>
+
+      <!-- BACKEND -->
+      <rect x="440" y="120" width="320" height="120" rx="14" fill="url(#beG)"/>
+      <text x="460" y="148" font-family="JetBrains Mono" font-weight="600" font-size="14" fill="white">backend/</text>
+      <text x="460" y="168" font-family="Inter" font-size="11" fill="rgba(255,255,255,0.85)">Server-only logic + Anthropic SDK</text>
+      <text x="460" y="192" font-family="JetBrains Mono" font-size="10" fill="rgba(255,255,255,0.75)">ai/client.ts  ·  ai/prompts.ts</text>
+      <text x="460" y="208" font-family="JetBrains Mono" font-size="10" fill="rgba(255,255,255,0.75)">ai/chat.ts  ·  ai/grade.ts  ·  ai/exam.ts</text>
+      <text x="460" y="226" font-family="Inter" font-size="10" fill="rgba(255,255,255,0.55)" font-style="italic">never reaches the browser →</text>
+
+      <!-- SHARED -->
+      <rect x="240" y="400" width="320" height="120" rx="14" fill="url(#shG)"/>
+      <text x="260" y="428" font-family="JetBrains Mono" font-weight="600" font-size="14" fill="white">shared/</text>
+      <text x="260" y="448" font-family="Inter" font-size="11" fill="rgba(255,255,255,0.85)">Pure logic — used by BOTH</text>
+      <text x="260" y="472" font-family="JetBrains Mono" font-size="10" fill="rgba(255,255,255,0.75)">types.ts  ·  properties.ts  ·  scenarios.ts</text>
+      <text x="260" y="488" font-family="JetBrains Mono" font-size="10" fill="rgba(255,255,255,0.75)">finance.ts  ·  elo.ts  ·  beginnerSim.ts</text>
+      <text x="260" y="506" font-family="Inter" font-size="10" fill="rgba(255,255,255,0.55)" font-style="italic">no React, no window, no env</text>
+
+      <!-- CLOUD (Anthropic) -->
+      <ellipse cx="690" cy="30" rx="60" ry="22" fill="white" stroke="#CBD5E1"/>
+      <text x="690" y="35" text-anchor="middle" font-family="Inter" font-size="12" fill="#64748B">Claude API</text>
+
+      <!-- ARROWS -->
+      <!-- browser → app -->
+      <path d="M 200 80 L 200 120" stroke="#475569" stroke-width="1.8" fill="none" marker-end="url(#arrowD)"/>
+      <text x="210" y="105" font-family="JetBrains Mono" font-size="10" fill="#475569">HTTPS</text>
+
+      <!-- app → frontend (renders) -->
+      <path d="M 200 210 L 200 240" stroke="#475569" stroke-width="1.8" fill="none" marker-end="url(#arrowD)"/>
+      <text x="210" y="230" font-family="JetBrains Mono" font-size="10" fill="#475569">renders</text>
+
+      <!-- app/api → backend -->
+      <path d="M 360 165 L 440 180" stroke="#475569" stroke-width="1.8" fill="none" marker-end="url(#arrowD)"/>
+      <text x="370" y="158" font-family="JetBrains Mono" font-size="10" fill="#475569">delegates</text>
+
+      <!-- backend → Claude -->
+      <path d="M 690 120 L 690 52" stroke="#475569" stroke-width="1.8" fill="none" marker-end="url(#arrowD)" stroke-dasharray="5 4"/>
+
+      <!-- shared ← frontend -->
+      <path d="M 260 460 Q 200 420 200 360" stroke="#94A3B8" stroke-width="1.5" fill="none" marker-end="url(#arrow)"/>
+      <!-- shared ← backend -->
+      <path d="M 540 460 Q 600 420 600 240" stroke="#94A3B8" stroke-width="1.5" fill="none" marker-end="url(#arrow)"/>
+      <text x="190" y="395" font-family="JetBrains Mono" font-size="10" fill="#64748B" font-style="italic">imports</text>
+      <text x="610" y="395" font-family="JetBrains Mono" font-size="10" fill="#64748B" font-style="italic">imports</text>
+    </svg>
+
+    <div class="arch-notes">
+      <h4>app/</h4>
+      <p>Routes only. Page files + thin API handlers.</p>
+
+      <h4>frontend/</h4>
+      <p>Everything bundled to the browser. React, localStorage, UI state.</p>
+
+      <h4>backend/</h4>
+      <p>Server-only. Anthropic SDK + prompts. Never reaches the browser.</p>
+
+      <h4>shared/</h4>
+      <p>Pure logic. Used by both client and server. Zero React, zero side effects.</p>
+
+      <h4 style="color: var(--brand);">Why this matters</h4>
+      <p>Open any file → instantly know if it ships to users.</p>
+    </div>
+  </div>
+</section>
+
+<!-- ============================================================== -->
+<!-- 05 FOLDERS DEEP DIVE -->
+<!-- ============================================================== -->
+<section class="slide">
+  <div class="slide-number">05 / 08</div>
+  <div class="slide-kicker">Folder layout</div>
+  <h2>Each folder, one job.</h2>
+
+  <div class="folder-grid">
+    <div class="folder app">
+      <div class="folder-name">app/</div>
+      <div class="folder-role">Next.js routes — thin handlers only</div>
+      <ul class="folder-files">
+        <li>page.tsx · layout.tsx · globals.css</li>
+        <li>api/chat/route.ts · api/grade/route.ts</li>
+        <li>api/exam/route.ts</li>
+        <li>practice/[slug]/ · market/ · beginner/</li>
+        <li>dashboard/ · exam/ · portfolio/ · system/</li>
+      </ul>
+    </div>
+
+    <div class="folder front">
+      <div class="folder-name">frontend/</div>
+      <div class="folder-role">Client UI + browser state</div>
+      <ul class="folder-files">
+        <li>components/landing/ (9 files)</li>
+        <li>components/feature/ (11 files)</li>
+        <li>components/shared/ (8 files)</li>
+        <li>lib/store.ts — localStorage helpers</li>
+        <li>lib/demoSeed.ts — demo seeder</li>
+      </ul>
+    </div>
+
+    <div class="folder back">
+      <div class="folder-name">backend/</div>
+      <div class="folder-role">Server-only · Anthropic SDK + secrets</div>
+      <ul class="folder-files">
+        <li>ai/client.ts — SDK init + guard</li>
+        <li>ai/prompts.ts — all long-form prompts</li>
+        <li>ai/chat.ts — processChat()</li>
+        <li>ai/grade.ts — gradeTranscript()</li>
+        <li>ai/exam.ts — generateExam()</li>
+      </ul>
+    </div>
+
+    <div class="folder shared">
+      <div class="folder-name">shared/</div>
+      <div class="folder-role">Pure logic · used by client AND server</div>
+      <ul class="folder-files">
+        <li>types.ts — data shapes</li>
+        <li>properties.ts — 28 synthetic listings</li>
+        <li>scenarios.ts — AI personas</li>
+        <li>finance.ts — cap rate / DSCR / ROI</li>
+        <li>elo.ts — SimScore math</li>
+        <li>beginnerSim.ts — forward simulation</li>
+      </ul>
+    </div>
+  </div>
+</section>
+
+<!-- ============================================================== -->
+<!-- 06 CODE SNAPSHOT — elo.ts -->
+<!-- ============================================================== -->
+<section class="slide">
+  <div class="slide-number">06 / 08</div>
+  <div class="slide-kicker">Code snapshot · shared/elo.ts</div>
+  <h2>The whole SimScore engine. 40 lines.</h2>
+
+  <div class="code-layout">
+<pre class="code-block"><span class="com">// ELO-style SimScore. User starts at 1000.</span>
+<span class="com">// Each scenario has a baseRating that represents its "difficulty".</span>
+<span class="com">// Win/loss/draw is derived from the average grade across rubric dimensions.</span>
+<span class="com">// k = volatility per match (32 default)</span>
+
+<span class="kw">export type</span> <span class="ty">GradeResult</span> = {
+  rapport: <span class="ty">number</span>;       <span class="com">// 0-100</span>
+  discovery: <span class="ty">number</span>;
+  objectionHandling: <span class="ty">number</span>;
+  close: <span class="ty">number</span>;
+  ethicsFlags: <span class="ty">string</span>[];
+};
+
+<span class="kw">export function</span> <span class="fn">avgGrade</span>(g: <span class="ty">GradeResult</span>): <span class="ty">number</span> {
+  <span class="kw">return</span> (g.rapport + g.discovery + g.objectionHandling + g.close) / <span class="num">4</span>;
+}
+
+<span class="kw">export function</span> <span class="fn">expectedScore</span>(userRating: <span class="ty">number</span>, opponentRating: <span class="ty">number</span>): <span class="ty">number</span> {
+  <span class="kw">return</span> <span class="num">1</span> / (<span class="num">1</span> + <span class="ty">Math</span>.<span class="fn">pow</span>(<span class="num">10</span>, (opponentRating - userRating) / <span class="num">400</span>));
+}
+
+<span class="com">// Map 0-100 grade to ELO outcome 0-1</span>
+<span class="com">// 70+ = win, 50-70 = draw band, &lt;50 = loss</span>
+<span class="kw">function</span> <span class="fn">gradeToOutcome</span>(grade: <span class="ty">number</span>): <span class="ty">number</span> {
+  <span class="kw">if</span> (grade &gt;= <span class="num">80</span>) <span class="kw">return</span> <span class="num">1.0</span>;
+  <span class="kw">if</span> (grade &gt;= <span class="num">70</span>) <span class="kw">return</span> <span class="num">0.8</span>;
+  <span class="kw">if</span> (grade &gt;= <span class="num">60</span>) <span class="kw">return</span> <span class="num">0.5</span>;
+  <span class="kw">if</span> (grade &gt;= <span class="num">50</span>) <span class="kw">return</span> <span class="num">0.3</span>;
+  <span class="kw">return</span> <span class="num">0.0</span>;
+}
+
+<span class="kw">export function</span> <span class="fn">newRating</span>(
+  userRating: <span class="ty">number</span>,
+  opponentRating: <span class="ty">number</span>,
+  grade: <span class="ty">number</span>,
+  k: <span class="ty">number</span> = <span class="num">32</span>
+): { newRating: <span class="ty">number</span>; delta: <span class="ty">number</span> } {
+  <span class="kw">const</span> expected = <span class="fn">expectedScore</span>(userRating, opponentRating);
+  <span class="kw">const</span> actual = <span class="fn">gradeToOutcome</span>(grade);
+  <span class="kw">const</span> delta = <span class="ty">Math</span>.<span class="fn">round</span>(k * (actual - expected));
+  <span class="kw">return</span> { newRating: userRating + delta, delta };
+}</pre>
+
+    <div class="speaker-notes">
+      <h4>What this is</h4>
+      <p>The same math Chess.com and Lichess use to rank players. Adapted for a real estate scenario.</p>
+
+      <h4>Why it&rsquo;s clean</h4>
+      <p>Zero imports. Pure functions. No side effects. You can unit-test every line in isolation.</p>
+
+      <h4>What it does</h4>
+      <p>Takes your current SimScore + the scenario&rsquo;s difficulty rating + your grade. Returns your new rating + the delta.</p>
+
+      <h4>Tier breakpoints</h4>
+      <p>Grade ≥80 = win (full credit). 70-80 = solid. 50-70 = draw. Below 50 = loss.</p>
+
+      <h4 style="color: var(--brand);">The point</h4>
+      <p>This entire file is the SimScore engine. The whole backend is this simple. You can read it. You can extend it.</p>
+    </div>
+  </div>
+</section>
+
+<!-- ============================================================== -->
+<!-- 08 AI WIRING -->
+<!-- ============================================================== -->
+<section class="slide">
+  <div class="slide-number">07 / 08</div>
+  <div class="slide-kicker">AI integration</div>
+  <h2>Two models, two jobs.</h2>
+
+  <div class="ai-grid">
+    <div class="ai-card">
+      <div class="ai-model">Claude Haiku</div>
+      <div class="ai-name">In-character chat</div>
+      <ul class="ai-list">
+        <li><strong>Used in:</strong> Agent simulation chat replies</li>
+        <li><strong>Why:</strong> Fast, cheap, excellent persona consistency over multi-turn</li>
+        <li><strong>Where:</strong> <code>backend/ai/chat.ts</code></li>
+        <li><strong>Max tokens:</strong> 400 — tight, conversational</li>
+      </ul>
+    </div>
+    <div class="ai-card">
+      <div class="ai-model">Claude Sonnet</div>
+      <div class="ai-name">Grading + exam generation</div>
+      <ul class="ai-list">
+        <li><strong>Used in:</strong> Transcript scoring, exam question writing</li>
+        <li><strong>Why:</strong> Stronger reasoning, returns reliable structured JSON</li>
+        <li><strong>Where:</strong> <code>backend/ai/grade.ts</code>, <code>backend/ai/exam.ts</code></li>
+        <li><strong>Output:</strong> JSON with rapport / discovery / objections / close + biggest win &amp; miss</li>
+      </ul>
+    </div>
+  </div>
+
+  <p style="margin-top: 36px; font-size: 16px;"><strong>Graceful degradation:</strong> No <code>ANTHROPIC_API_KEY</code> set? Routes short-circuit to a friendly 503. Market, Beginner, Portfolio, Dashboard all keep working.</p>
+</section>
+
+<!-- ============================================================== -->
+<!-- 09 WHAT YOU'LL SHIP -->
+<!-- ============================================================== -->
+<section class="slide">
+  <div class="slide-number">08 / 08</div>
+  <div class="slide-kicker">Your first ticket</div>
+  <h2>Pick one. Ship by Friday.</h2>
+  <p style="margin-top: 12px;">Each is one file. Each is shippable. Each will be live the day you push.</p>
+
+  <div class="tickets">
+    <div class="ticket">
+      <div class="ticket-num">TICKET-01</div>
+      <div class="ticket-title">Add a new agent simulation persona</div>
+      <div class="ticket-file">shared/scenarios.ts</div>
+      <div class="ticket-blurb">Pick a scenario — angry tenant, divorcing couple. Write the system prompt. Live the moment you push.</div>
+    </div>
+    <div class="ticket">
+      <div class="ticket-num">TICKET-02</div>
+      <div class="ticket-title">Add a new market scenario</div>
+      <div class="ticket-file">shared/beginnerSim.ts</div>
+      <div class="ticket-blurb">Pick a real one — &ldquo;Florida hurricane year&rdquo; or &ldquo;1980s 18% rates spike.&rdquo; Auto-shows in Beginner dropdown.</div>
+    </div>
+    <div class="ticket">
+      <div class="ticket-num">TICKET-03</div>
+      <div class="ticket-title">Add 12 more synthetic properties</div>
+      <div class="ticket-file">shared/properties.ts</div>
+      <div class="ticket-blurb">Bump the loop count. Add 1-2 new neighborhoods. Generator handles the rest.</div>
+    </div>
+    <div class="ticket">
+      <div class="ticket-num">TICKET-04</div>
+      <div class="ticket-title">Build the Aptitude Test</div>
+      <div class="ticket-file">app/quiz/page.tsx (new)</div>
+      <div class="ticket-blurb">&ldquo;Are you built for this?&rdquo; — 10 questions, archetype result. Shareable card. Top of funnel for TikTok.</div>
+    </div>
+    <div class="ticket">
+      <div class="ticket-num">TICKET-05</div>
+      <div class="ticket-title">Daily challenge surface</div>
+      <div class="ticket-file">app/today/page.tsx (new)</div>
+      <div class="ticket-blurb">One fresh &ldquo;Would you buy or sell?&rdquo; per day. Comment-style reveal. Daily-loop hook.</div>
+    </div>
+    <div class="ticket">
+      <div class="ticket-num">TICKET-06</div>
+      <div class="ticket-title">Shareable result card generator</div>
+      <div class="ticket-file">app/api/share/route.ts (new)</div>
+      <div class="ticket-blurb">After a scenario, generate a vertical 9:16 image (archetype + SimScore) for TikTok/IG sharing.</div>
+    </div>
+  </div>
+</section>
+
+<!-- ============================================================== -->
+<!-- CLOSING -->
+<!-- ============================================================== -->
+<section class="slide closing">
+  <div class="slide-kicker" style="color: rgba(255,255,255,0.5);">Let&rsquo;s build.</div>
+  <h2>You&rsquo;re joining at the moment it starts to scale.</h2>
+  <p>Whatever you ship in the next month, real estate agents will use it. That&rsquo;s not a typical first build.</p>
+  <div class="signoff">Estatify · Architecture deck · Hassan Khan</div>
+</section>
+
+</body>
+</html>

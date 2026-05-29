@@ -1,6 +1,6 @@
-import Nav from "@/components/Nav";
-import Footer from "@/components/Footer";
-import DashboardView from "@/components/DashboardView";
+import Nav from "@/frontend/components/shared/Nav";
+import Footer from "@/frontend/components/landing/Footer";
+import DashboardView from "@/frontend/components/feature/DashboardView";
 
 export const metadata = { title: "Dashboard — RealEstateSIM" };
 

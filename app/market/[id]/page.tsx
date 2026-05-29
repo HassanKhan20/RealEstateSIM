@@ -1,11 +1,11 @@
 import { notFound } from "next/navigation";
 import Link from "next/link";
-import Nav from "@/components/Nav";
-import Footer from "@/components/Footer";
-import DealAnalyzer from "@/components/DealAnalyzer";
-import HouseIllustration from "@/components/HouseIllustration";
-import { getProperty, PROPERTIES, TYPE_LABELS } from "@/lib/properties";
-import { fmtMoney } from "@/lib/finance";
+import Nav from "@/frontend/components/shared/Nav";
+import Footer from "@/frontend/components/landing/Footer";
+import DealAnalyzer from "@/frontend/components/feature/DealAnalyzer";
+import HouseIllustration from "@/frontend/components/shared/HouseIllustration";
+import { getProperty, PROPERTIES, TYPE_LABELS } from "@/shared/properties";
+import { fmtMoney } from "@/shared/finance";
 
 export function generateStaticParams() {
   return PROPERTIES.map((p) => ({ id: p.id }));
@@ -83,10 +83,70 @@ export default function PropertyDetail({ params }: { params: { id: string } }) {
           {/* Right: live deal analyzer */}
           <DealAnalyzer property={property} />
         </div>
+
+        {/* Comparable sales */}
+        <section className="mt-8 card p-6">
+          <div className="flex items-end justify-between">
+            <div>
+              <div className="text-[10px] uppercase tracking-widest text-accent">
+                Comparable sales
+              </div>
+              <h2 className="mt-1 text-xl font-semibold text-slate-900">
+                3 similar nearby properties
+              </h2>
+            </div>
+            <div className="text-right text-xs text-slate-500">
+              Same type · within ±25% sqft · same or adjacent neighborhood
+            </div>
+          </div>
+          <div className="mt-5 grid gap-4 sm:grid-cols-3">
+            {findComps(property).map((c) => (
+              <Link
+                key={c.id}
+                href={`/market/${c.id}`}
+                className="block rounded-xl bg-[#F7F8FA] p-4 transition hover:bg-slate-100"
+              >
+                <div className="text-[10px] uppercase tracking-widest text-slate-500">
+                  {c.neighborhood}
+                </div>
+                <div className="mt-0.5 font-medium text-slate-900">{c.address}</div>
+                <div className="mt-1 text-xs text-slate-600">
+                  {c.beds}bd / {c.baths}ba · {c.sqft.toLocaleString()} sqft · Built {c.yearBuilt}
+                </div>
+                <div className="mt-3 flex items-end justify-between">
+                  <div>
+                    <div className="text-[10px] text-slate-500">Sold</div>
+                    <div className="font-display text-lg text-slate-900">{fmtMoney(c.price)}</div>
+                  </div>
+                  <div className="text-right text-[11px] text-slate-500">
+                    <div>${c.pricePerSqft}/sqft</div>
+                    <div>{c.daysOnMarket}d on market</div>
+                  </div>
+                </div>
+              </Link>
+            ))}
+          </div>
+        </section>
       </main>
       <Footer />
     </>
   );
+}
+
+function findComps(target: ReturnType<typeof getProperty>) {
+  if (!target) return [];
+  return PROPERTIES
+    .filter((p) => p.id !== target.id && p.type === target.type)
+    .map((p) => ({
+      p,
+      score:
+        Math.abs(p.sqft - target.sqft) / target.sqft * 100 +
+        (p.neighborhood === target.neighborhood ? 0 : 25) +
+        Math.abs(p.beds - target.beds) * 5,
+    }))
+    .sort((a, b) => a.score - b.score)
+    .slice(0, 3)
+    .map((x) => x.p);
 }
 
 function Fact({

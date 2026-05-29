@@ -1,0 +1,723 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Estatify — Architecture & Product Overview</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Playfair+Display:ital,wght@0,400;0,500;1,400&family=JetBrains+Mono:wght@400;500&display=swap');
+
+  :root {
+    --ink: #0F172A;
+    --ink-soft: #334155;
+    --muted: #64748B;
+    --light: #94A3B8;
+    --bg: #FFFFFF;
+    --bg-soft: #F7F8FA;
+    --bg-hard: #EEF2F7;
+    --rule: #E2E8F0;
+    --rule-soft: #F1F5F9;
+    --brand: #2563EB;
+    --brand-dark: #1D4ED8;
+    --good: #059669;
+    --warn: #B45309;
+    --bad: #DC2626;
+    --code: #0F766E;
+  }
+
+  * { box-sizing: border-box; }
+  html, body {
+    margin: 0;
+    padding: 0;
+    background: var(--bg);
+    color: var(--ink);
+    font-family: 'Inter', system-ui, -apple-system, sans-serif;
+    font-size: 11pt;
+    line-height: 1.55;
+    -webkit-font-smoothing: antialiased;
+    text-rendering: optimizeLegibility;
+  }
+
+  .page {
+    max-width: 800px;
+    margin: 0 auto;
+    padding: 60px 56px;
+  }
+
+  /* TYPOGRAPHY */
+  h1, h2, h3, h4 {
+    font-family: 'Playfair Display', Georgia, serif;
+    font-weight: 500;
+    color: var(--ink);
+    margin: 0;
+  }
+  h1 { font-size: 36pt; line-height: 1.05; letter-spacing: -0.01em; }
+  h2 { font-size: 22pt; line-height: 1.15; margin-top: 36px; padding-top: 20px; border-top: 1px solid var(--rule); letter-spacing: -0.005em; }
+  h3 { font-size: 15pt; line-height: 1.25; margin-top: 28px; font-weight: 600; font-family: 'Inter', sans-serif; }
+  h4 { font-size: 12pt; line-height: 1.3; margin-top: 18px; font-weight: 600; font-family: 'Inter', sans-serif; color: var(--ink-soft); }
+
+  p { margin: 14px 0; color: var(--ink-soft); }
+  strong { color: var(--ink); font-weight: 600; }
+  em { color: var(--ink); }
+
+  a { color: var(--brand); text-decoration: none; }
+  a:hover { text-decoration: underline; }
+
+  /* COVER */
+  .cover {
+    margin-bottom: 60px;
+    padding-bottom: 36px;
+    border-bottom: 1px solid var(--rule);
+  }
+  .cover-eyebrow {
+    font-size: 9pt;
+    text-transform: uppercase;
+    letter-spacing: 0.24em;
+    color: var(--muted);
+    font-weight: 500;
+    margin-bottom: 12px;
+  }
+  .cover h1 {
+    font-size: 44pt;
+    margin-bottom: 8px;
+  }
+  .cover-sub {
+    font-family: 'Playfair Display', serif;
+    font-style: italic;
+    font-size: 16pt;
+    color: var(--muted);
+  }
+  .cover-meta {
+    display: flex;
+    gap: 32px;
+    margin-top: 36px;
+    font-size: 9.5pt;
+    color: var(--muted);
+  }
+  .cover-meta span strong {
+    display: block;
+    color: var(--ink);
+    font-size: 10.5pt;
+    font-weight: 600;
+    margin-bottom: 2px;
+  }
+
+  /* TABLE OF CONTENTS */
+  .toc {
+    background: var(--bg-soft);
+    border-radius: 12px;
+    padding: 24px 28px;
+    margin: 32px 0;
+  }
+  .toc-title {
+    font-size: 9pt;
+    text-transform: uppercase;
+    letter-spacing: 0.24em;
+    color: var(--muted);
+    margin-bottom: 14px;
+  }
+  .toc ol {
+    counter-reset: toc;
+    list-style: none;
+    padding-left: 0;
+    margin: 0;
+    columns: 2;
+    column-gap: 32px;
+  }
+  .toc ol li {
+    counter-increment: toc;
+    padding: 4px 0;
+    font-size: 10.5pt;
+    break-inside: avoid;
+  }
+  .toc ol li::before {
+    content: counter(toc, decimal-leading-zero) "  ";
+    color: var(--light);
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 9pt;
+  }
+  .toc a { color: var(--ink); }
+
+  /* CALLOUT */
+  .callout {
+    background: var(--bg-soft);
+    border-left: 3px solid var(--brand);
+    padding: 16px 20px;
+    margin: 20px 0;
+    border-radius: 4px;
+  }
+  .callout p { margin: 0; }
+
+  /* CODE & PRE */
+  code {
+    font-family: 'JetBrains Mono', SFMono-Regular, monospace;
+    font-size: 9.5pt;
+    background: var(--bg-hard);
+    padding: 1px 6px;
+    border-radius: 4px;
+    color: var(--code);
+  }
+  pre {
+    background: var(--ink);
+    color: #E2E8F0;
+    padding: 18px 22px;
+    border-radius: 8px;
+    font-size: 9pt;
+    line-height: 1.55;
+    overflow-x: auto;
+    font-family: 'JetBrains Mono', monospace;
+    margin: 16px 0;
+    page-break-inside: avoid;
+  }
+  pre code {
+    background: transparent;
+    color: inherit;
+    padding: 0;
+    font-size: inherit;
+  }
+
+  /* TABLES */
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    margin: 18px 0;
+    font-size: 10pt;
+    page-break-inside: avoid;
+  }
+  th, td {
+    text-align: left;
+    padding: 9px 12px;
+    border-bottom: 1px solid var(--rule-soft);
+    vertical-align: top;
+  }
+  th {
+    font-weight: 600;
+    color: var(--ink);
+    background: var(--bg-soft);
+    font-size: 9pt;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+  }
+  td:first-child {
+    font-weight: 500;
+    color: var(--ink);
+  }
+
+  /* LISTS */
+  ul, ol { padding-left: 22px; margin: 14px 0; }
+  li { margin: 6px 0; color: var(--ink-soft); }
+  li strong { color: var(--ink); }
+
+  /* MODULE CARD */
+  .module {
+    background: var(--bg-soft);
+    border-radius: 12px;
+    padding: 22px 26px;
+    margin: 18px 0;
+    page-break-inside: avoid;
+  }
+  .module-name {
+    font-family: 'Playfair Display', serif;
+    font-size: 16pt;
+    font-weight: 500;
+    color: var(--ink);
+    margin: 0 0 4px 0;
+  }
+  .module-blurb {
+    color: var(--muted);
+    font-size: 10.5pt;
+    margin-bottom: 14px;
+  }
+  .module-files {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+  }
+  .module-files li {
+    padding: 8px 0;
+    border-top: 1px dashed var(--rule);
+    margin: 0;
+    font-size: 9.5pt;
+  }
+  .module-files li:first-child { border-top: 0; }
+  .module-files code {
+    color: var(--brand);
+    background: transparent;
+    padding: 0;
+    font-size: 9pt;
+  }
+  .module-files .role {
+    color: var(--muted);
+    margin-top: 2px;
+    display: block;
+    font-size: 9.5pt;
+  }
+
+  /* WHY-BLOCK */
+  .why {
+    background: rgba(37, 99, 235, 0.04);
+    border-left: 3px solid var(--brand);
+    padding: 12px 18px;
+    margin: 12px 0;
+    border-radius: 4px;
+    font-size: 10.5pt;
+  }
+  .why::before {
+    content: "Why this exists →";
+    display: block;
+    font-size: 8.5pt;
+    text-transform: uppercase;
+    letter-spacing: 0.16em;
+    color: var(--brand);
+    font-weight: 600;
+    margin-bottom: 4px;
+  }
+  .why p { margin: 0; color: var(--ink-soft); }
+
+  /* RULE TAG */
+  .tag {
+    display: inline-block;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 8.5pt;
+    background: var(--ink);
+    color: white;
+    padding: 2px 8px;
+    border-radius: 4px;
+    margin-right: 4px;
+    vertical-align: middle;
+  }
+  .tag.route {
+    background: white;
+    color: var(--ink);
+    border: 1px solid var(--rule);
+  }
+
+  /* DATAFLOW */
+  .flow {
+    background: var(--ink);
+    color: #E2E8F0;
+    padding: 22px 24px;
+    border-radius: 12px;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 9pt;
+    line-height: 1.65;
+    margin: 18px 0;
+    page-break-inside: avoid;
+    overflow-x: auto;
+    white-space: pre;
+  }
+
+  /* PRINT */
+  @media print {
+    body { font-size: 10pt; }
+    .page { padding: 0; max-width: none; }
+    h1 { font-size: 30pt; }
+    h2 { font-size: 18pt; page-break-before: always; }
+    h2:first-of-type { page-break-before: auto; }
+    pre, .flow, .module, table { page-break-inside: avoid; }
+    a { color: var(--ink); text-decoration: none; }
+    .toc { background: var(--bg-soft) !important; }
+    @page { margin: 18mm 16mm; }
+  }
+</style>
+</head>
+<body>
+<div class="page">
+
+<div class="cover">
+  <div class="cover-eyebrow">Architecture &amp; Product Overview</div>
+  <h1>Estatify</h1>
+  <div class="cover-sub">Practice the deal before it&rsquo;s real.</div>
+  <div class="cover-meta">
+    <span><strong>Version</strong>1.0</span>
+    <span><strong>Stack</strong>Next.js 14 · TypeScript · Tailwind · Anthropic</span>
+    <span><strong>Author</strong>Hassan Khan</span>
+  </div>
+</div>
+
+<div class="toc">
+  <div class="toc-title">Contents</div>
+  <ol>
+    <li><a href="#exec">Executive summary</a></li>
+    <li><a href="#problem">The problem &amp; why</a></li>
+    <li><a href="#features">Product features</a></li>
+    <li><a href="#arch">System architecture</a></li>
+    <li><a href="#stack">Tech stack &amp; rationale</a></li>
+    <li><a href="#flow">Data flow end-to-end</a></li>
+    <li><a href="#data">Data model &amp; persistence</a></li>
+    <li><a href="#ai">AI integration</a></li>
+    <li><a href="#tour">Codebase tour</a></li>
+    <li><a href="#extend">How to extend</a></li>
+    <li><a href="#demo">Demo script</a></li>
+    <li><a href="#roadmap">Roadmap &amp; tradeoffs</a></li>
+  </ol>
+</div>
+
+<h2 id="exec">1 — Executive summary</h2>
+
+<p>Estatify is a Next.js web application that gives aspiring real estate agents and investors something the industry doesn&rsquo;t currently offer: <strong>realistic, no-stakes practice</strong>. The product spans three connected tracks plus a beginner mode.</p>
+
+<ul>
+  <li><strong>Agent Simulations</strong> &mdash; AI roleplay against real estate personas, graded by Claude Sonnet on rapport, discovery, objection handling, and close.</li>
+  <li><strong>Paper Trading</strong> &mdash; 28 synthetic Tampa listings with realistic prices, rents, taxes, and flood zones. Run live financial models across four investment strategies.</li>
+  <li><strong>Beginner Mode</strong> &mdash; simplified buy-with-cash-or-finance experience plus a forward-simulation engine modeling five market scenarios.</li>
+  <li><strong>Exam Prep</strong> &mdash; AI-generated, scenario-first practice questions across nine licensing topics with explanations.</li>
+</ul>
+
+<p>All of this sits inside a single, well-organized Next.js codebase split into <code>frontend/</code>, <code>backend/</code>, and <code>shared/</code> &mdash; the same separation a Node + React monorepo would have, but contained in one project.</p>
+
+<h2 id="problem">2 — The problem and why we built this</h2>
+
+<p>The single most-cited statistic in real estate education: <strong>75% of new agents quit within their first year.</strong> Among the 25% who stay, the dropout rate by year five is reported around 87%.</p>
+
+<h3>Why agents fail</h3>
+<ol>
+  <li><strong>Financial unpreparedness for the 90-day commission gap.</strong> First close averages 90+ days into the career. Most have no runway.</li>
+  <li><strong>Brokerage onboarding is &ldquo;here&rsquo;s a desk, go sell.&rdquo;</strong> Mentorship is widely promised but rarely delivered.</li>
+  <li><strong>Pre-license courses are universally described as boring</strong> &mdash; read-quiz, read-quiz format, decoupled from the actual job.</li>
+  <li><strong>Reality TV (Selling Sunset, Million Dollar Listing) skews expectations.</strong> New agents arrive expecting glamour, find rejection.</li>
+  <li><strong>Unrealistic confidence going into the first cold call.</strong> Most have never practiced a real conversation.</li>
+</ol>
+
+<h3>Why investors fail</h3>
+<ol>
+  <li>Analysis paralysis &mdash; perfect deal, never bought.</li>
+  <li>Emotional buying &mdash; first deal becomes a money pit.</li>
+  <li>No exit strategy before signing.</li>
+  <li>Underestimating rehab + carrying costs on flips.</li>
+</ol>
+
+<div class="callout">
+  <p>Estatify exists because <strong>practice closes the gap between knowledge and competence</strong>. Pilots train in flight simulators before flying real planes. Surgeons rehearse on cadavers. Sales teams roleplay. Real estate is the only major career where your first day costs $50,000 to find out if you fit.</p>
+</div>
+
+<p>The product is not training in the boring &ldquo;course content&rdquo; sense. It&rsquo;s <strong>reps</strong>. Hundreds of low-stakes reps until the first real call doesn&rsquo;t feel like the first call.</p>
+
+<h2 id="features">3 — Product features</h2>
+
+<h3>3.1 Landing page</h3>
+<p>A cinematic, editorial marketing page with a dark hero (massive metallic &ldquo;ESTATIFY&rdquo; wordmark over a procedural city skyline), real photography in the carousel, a featured-properties section with a stylized neighborhood map, and editorial sections explaining the product.</p>
+<div class="why">
+  <p>First impressions are non-trivial. The dominant aesthetic in real estate is either utilitarian (Zillow) or cheesy (realtor headshots). We wanted Estatify to feel premium and serious &mdash; closer to Compass / Sotheby&rsquo;s than Aceable&rsquo;s animated memes.</p>
+</div>
+
+<h3>3.2 Agent Simulations <span class="tag route">/practice/[slug]</span></h3>
+<p>Five fully voiced AI personas: <strong>Marcus Whitaker</strong> (motivated seller, pre-foreclosure), <strong>Linda Reyes</strong> (sharp cash-buyer investor), <strong>Dave Kowalski</strong> (anti-agent FSBO seller), <strong>Marcus Hayes</strong> (lowball investor), and <strong>Priya Chen</strong> (panicking first-time buyer).</p>
+<p>Conversations run by <strong>Claude Haiku</strong> in-character with hidden backstory. After 3+ user turns, the user can &ldquo;End call &amp; grade&rdquo; &mdash; <strong>Claude Sonnet</strong> evaluates the transcript and returns structured JSON with rapport, discovery, objection handling, close scores, plus biggest win and biggest miss feedback.</p>
+<p>The grade feeds an <strong>ELO-style SimScore</strong>. Tiers: Rookie &rarr; Journeyman &rarr; Closer &rarr; Top Agent &rarr; Shark.</p>
+<div class="why">
+  <p>Agent burnout in year one is fundamentally a <strong>rejection-tolerance</strong> problem. The skill of staying calm when a homeowner hangs up &mdash; that&rsquo;s the actual job. You can&rsquo;t train it from a textbook. You train it by doing it. Estatify gives you 100+ reps before your first real call. Every persona prompt includes a Fair Housing guardrail; the grader explicitly flags violations.</p>
+</div>
+
+<h3>3.3 Market &amp; Deal Analyzer <span class="tag route">/market</span> <span class="tag route">/market/[id]</span></h3>
+<p>Zillow-style listings grid with 28 synthetic Tampa-area properties. Filter by neighborhood, type, beds, max price. Click a listing to open the <strong>Deal Analyzer</strong> &mdash; a live financial model with four strategy tabs: Buy &amp; Hold, House Hack, Flip, BRRRR. Recomputes in real time as you tweak down payment, rate, rehab, rent. Shows monthly cash flow, cash-on-cash, cap rate, DSCR, total cash in, plus 1% rule and 70% rule flags.</p>
+<div class="why">
+  <p>Most beginner investors fail at the <strong>acquisition stage</strong> &mdash; overpaying because they didn&rsquo;t run the numbers correctly. Estatify lets you fail at this 50 times in an afternoon. Synthetic data lets us ship without a regulatory wall while keeping every number realistic. The generator is deterministic on a seed, so the same property looks identical on every reload.</p>
+</div>
+
+<h3>3.4 Beginner Mode <span class="tag route">/beginner</span> <span class="tag route">/beginner/[id]</span></h3>
+<p>Simplified version of the buying experience. Removes mortgages-vs-hard-money complexity. Two paths: <strong>all cash</strong> or <strong>finance</strong> (pick a down payment, rate, term). Plus an always-visible <strong>Simulate panel</strong> that runs your portfolio forward 1-10 years against five market scenarios:</p>
+<ul>
+  <li><strong>Base case</strong> &mdash; uses actual property assumptions</li>
+  <li><strong>Soft market</strong> &mdash; 40% appreciation, 50% rent growth</li>
+  <li><strong>Hot market</strong> &mdash; 160% appreciation</li>
+  <li><strong>2008-style crash</strong> &mdash; -30% appreciation + a one-time -22% hit at month 6</li>
+  <li><strong>Rates spike</strong> &mdash; +2.5% interest rate shock on financed mortgages</li>
+</ul>
+<div class="why">
+  <p>The full Pro Deal Analyzer assumes you know what an ARV is, that BRRRR stands for something. Most people who are real-estate-curious (the largest TAM) don&rsquo;t know any of that yet. Beginner Mode is the on-ramp. The Simulate panel makes time legible &mdash; you can&rsquo;t intuit 30 years of compounding from a textbook.</p>
+</div>
+
+<h3>3.5 Portfolio Pro <span class="tag route">/portfolio</span></h3>
+<p>Full deal tracking dashboard for properties bought in Pro Mode. Shows total equity, monthly cash flow, average cash-on-cash, holdings with strategy badges, and a <strong>time machine</strong> &mdash; fast-forward your portfolio +1, +5, or any custom number of years. Sell at projected value with simulated 6% closing costs.</p>
+
+<h3>3.6 Exam Prep <span class="tag route">/exam</span></h3>
+<p>AI-generated practice questions across nine licensing topics: agency, contracts, property ownership, finance, math, Fair Housing, listings, escrow/title, valuation. Pick a topic and count, get scenario-first multiple choice with explanations.</p>
+<div class="why">
+  <p>First-time pass rates are dismal &mdash; California averages 45-50%, Florida 40-60%. The killers are math and state law nuance. Existing providers (PrepAgent, Aceable) are huge improvements over textbooks but still mostly flashcards. Scenario-first AI questions with explanations feel like a tutor, not a quiz.</p>
+</div>
+
+<h3>3.7 Dashboard <span class="tag route">/dashboard</span></h3>
+<p>Activity hub. Current SimScore tier, daily streak, best streak, total sessions, win rate, average grade, exam average, holdings count, monthly cash flow. Plus quick actions and recent sessions list.</p>
+<div class="why">
+  <p>Daily-loop products live and die on whether the user feels their progress. Streak + tier mechanics are why Duolingo retains 5x better than the average language app. The streak isn&rsquo;t the product; the streak is what gets you to come back tomorrow and run another rep.</p>
+</div>
+
+<h3>3.8 System <span class="tag route">/system</span></h3>
+<p>Visual architecture explainer for new contributors and demo audiences. Maps every feature to its files, shows the four-folder layout, walks through the data flow of a graded scenario, and lists the most common ways to extend the codebase.</p>
+
+<h2 id="arch">4 — System architecture</h2>
+
+<h3>The four-folder split</h3>
+<pre><code>RealEstateSIM/
+├── app/         # Next.js routes (must stay at root)
+├── frontend/    # All client UI + client-only state
+├── backend/     # Server-only logic (Anthropic SDK + secrets)
+├── shared/      # Pure logic — used by both client and server
+└── public/      # Static assets</code></pre>
+
+<p>This is the same separation a Node + React monorepo would have. The constraint is that Next.js requires <code>app/</code> at the project root &mdash; but everything else is reorganized for clarity.</p>
+
+<h3>Why this structure</h3>
+<ul>
+  <li><strong><code>frontend/</code></strong> has React + browser APIs (localStorage). Bundled to the client.</li>
+  <li><strong><code>backend/</code></strong> has the Anthropic SDK, environment secrets, prompts. Server-only &mdash; never reaches the browser.</li>
+  <li><strong><code>shared/</code></strong> has zero React, zero <code>window</code>, zero <code>process.env</code>. Pure functions and data.</li>
+  <li><strong><code>app/</code></strong> is just routing. Page files import from <code>frontend/components/</code>; route handlers delegate to <code>backend/ai/</code>.</li>
+</ul>
+
+<p>When reading the codebase you immediately know whether a file ships to the user&rsquo;s browser. <code>backend/</code> and <code>app/api/*/route.ts</code> &mdash; no. <code>frontend/</code> and any client component &mdash; yes. <code>shared/</code> &mdash; both.</p>
+
+<h3>Why <code>app/api/*/route.ts</code> files are 10-25 lines</h3>
+<p>The API routes are intentionally thin. All logic lives in <code>backend/ai/</code>. The actual AI business logic &mdash; picking the model, constructing the system prompt, parsing structured JSON, calling ELO math &mdash; lives there. That keeps the route files boring and replaceable. Tomorrow we could swap to a separate Node server, or to Cloudflare Workers, by porting <code>backend/ai/</code> and rewriting the thin handlers.</p>
+
+<h3>Why <code>shared/types.ts</code> exists</h3>
+<p>Types like <code>BeginnerHolding</code> are used by both <code>frontend/lib/store.ts</code> (which writes them to localStorage) and <code>shared/beginnerSim.ts</code> (which simulates them forward). If types lived in <code>frontend/lib/store.ts</code>, then <code>shared/</code> would have a forbidden dependency on <code>frontend/</code>. <code>shared/types.ts</code> keeps the dependency graph clean.</p>
+
+<h2 id="stack">5 — Tech stack and rationale</h2>
+
+<table>
+  <thead><tr><th>Layer</th><th>Choice</th><th>Why</th></tr></thead>
+  <tbody>
+    <tr><td>Framework</td><td>Next.js 14 (App Router)</td><td>One project = frontend + API. RSC for fast static landing pages, client components where state matters. File-based routing means the file structure is the sitemap.</td></tr>
+    <tr><td>Language</td><td>TypeScript (strict)</td><td>Catches a class of bugs at compile time. End-to-end types from data → UI mean refactors don&rsquo;t break things silently.</td></tr>
+    <tr><td>Styling</td><td>Tailwind CSS</td><td>No CSS files to manage. The design system (colors, fonts, shadows) lives in <code>tailwind.config.ts</code>. Custom helpers (<code>btn-primary</code>, <code>card</code>) live in <code>globals.css</code>.</td></tr>
+    <tr><td>AI</td><td>Anthropic Claude SDK</td><td>The roleplay needs character consistency over multi-turn conversations and structured grading output. Haiku for chat (fast, cheap, in-character). Sonnet for grading + exam (better reasoning, structured JSON).</td></tr>
+    <tr><td>Persistence</td><td>localStorage (v1)</td><td>The MVP needed zero infra. All user state lives in the browser. Helpers in <code>frontend/lib/store.ts</code>. DB migration is a one-file swap.</td></tr>
+    <tr><td>Hosting</td><td>Vercel</td><td>Edge for static, Node runtime for /api, automatic CI/CD via GitHub. Default for Next.js.</td></tr>
+    <tr><td>Fonts</td><td>Inter + Playfair Display</td><td>Inter for UI. Playfair as the display serif for editorial headlines. Subsetted and self-hosted by Next at build time.</td></tr>
+  </tbody>
+</table>
+
+<h3>Why no separate state library (Redux, Zustand)</h3>
+<p>localStorage + the native <code>storage</code> event are sufficient at this size. When two components need to react to the same change, they listen for the storage event. We&rsquo;ll add a state library when we hit the limits of that pattern &mdash; not before.</p>
+
+<h3>Why no auth / user accounts (yet)</h3>
+<p>The product works without them. localStorage persistence per browser is fine for MVP. Auth enters the roadmap for cross-device persistence or B2B brokerage cohorts.</p>
+
+<h2 id="flow">6 — Data flow: a graded scenario, end to end</h2>
+
+<p>This is the canonical example of how the four folders cooperate. Walking it once explains the whole architecture.</p>
+
+<div class="flow">USER  ──[1]──▶  ChatInterface (frontend/components/feature)
+                state: messages[], scenario
+                      │
+                      ├──[2]──▶  POST /api/chat
+                      │              │
+                      │              └─▶ app/api/chat/route.ts (10 lines)
+                      │                       │
+                      │                       └─▶ backend/ai/chat.ts → processChat()
+                      │                                │
+                      │                                ├─▶ shared/scenarios.ts → getScenario(slug)
+                      │                                │       (system prompt + persona backstory)
+                      │                                │
+                      │                                └─▶ backend/ai/client.ts → Claude Haiku
+                      │
+                      │◀─────[3] in-character reply ────────────────────────┘
+                      │
+                      ├──[turns repeat]
+                      │
+USER  ──[4]──▶  ChatInterface.endCall()
+                      │
+                      └──[5]──▶  POST /api/grade
+                                     │
+                                     └─▶ app/api/grade/route.ts
+                                              │
+                                              └─▶ backend/ai/grade.ts → gradeTranscript()
+                                                       │
+                                                       ├─▶ backend/ai/prompts.ts → GRADING_INSTRUCTIONS
+                                                       ├─▶ backend/ai/client.ts → Claude Sonnet
+                                                       └─▶ Parse structured JSON
+                                                                │
+                                                                └─▶ shared/elo.ts → newRating()
+                                              │
+                      [6] Component receives response
+                      │
+                      └──[7]──▶  frontend/lib/store.ts
+                                     ├─▶ setSimScore(newRating)
+                                     └─▶ addSession({ ... })
+                                            │
+                                            └─▶ window.dispatchEvent(StorageEvent)
+                                                       │
+                      [8] Nav, Dashboard re-render with new SimScore</div>
+
+<div class="callout">
+  <p><strong>Key observation:</strong> every layer has a clear job. The route handler doesn&rsquo;t know how to grade. The frontend doesn&rsquo;t know what model is used. The shared math doesn&rsquo;t know it&rsquo;s being called from a server route. Each piece can be replaced independently.</p>
+</div>
+
+<h2 id="data">7 — Data model and persistence</h2>
+
+<h3>localStorage schema</h3>
+
+<table>
+  <thead><tr><th>Key</th><th>Shape</th><th>Owner</th></tr></thead>
+  <tbody>
+    <tr><td><code>simscore</code></td><td>number (1000 default)</td><td>Pro mode</td></tr>
+    <tr><td><code>portfolio-v1</code></td><td>PortfolioState</td><td>Pro mode</td></tr>
+    <tr><td><code>sessions-v1</code></td><td>SessionRecord[]</td><td>Sims</td></tr>
+    <tr><td><code>streak-v1</code></td><td>StreakState</td><td>Daily loop</td></tr>
+    <tr><td><code>exam-attempts-v1</code></td><td>ExamAttempt[]</td><td>Exam</td></tr>
+    <tr><td><code>beginner-portfolio-v1</code></td><td>BeginnerPortfolio</td><td>Beginner mode</td></tr>
+    <tr><td><code>demo-seed-v1</code></td><td>flag</td><td>Seeder (main)</td></tr>
+    <tr><td><code>demo-seed-beginner-v2</code></td><td>flag</td><td>Seeder (beginner)</td></tr>
+  </tbody>
+</table>
+
+<h3>Demo seed</h3>
+<p><code>frontend/lib/demoSeed.ts</code> runs once on first page load. It populates localStorage with a realistic, lived-in state &mdash; SimScore 1285, 12-day streak, 8 graded sessions, 4 Pro holdings, 3 Beginner holdings, 6 exam attempts. New visitors immediately see the Dashboard look meaningful instead of empty.</p>
+
+<h3>Future migration</h3>
+<p>Replacing localStorage with a real database (Postgres, Supabase, Convex) only requires swapping helper implementations in <code>frontend/lib/store.ts</code>. Every consumer keeps working unchanged. Types in <code>shared/types.ts</code> map directly to DB tables.</p>
+
+<h2 id="ai">8 — AI integration</h2>
+
+<h3>Claude Haiku <code>backend/ai/chat.ts</code></h3>
+<p><strong>Used for:</strong> in-character roleplay during agent simulations. <strong>Why:</strong> Haiku is fast, cheap, and excellent at maintaining persona over multi-turn conversations. Latency matters in chat. <strong>Max tokens:</strong> 400 &mdash; keeps responses tight.</p>
+
+<h3>Claude Sonnet <code>backend/ai/grade.ts</code> &amp; <code>backend/ai/exam.ts</code></h3>
+<p><strong>Used for:</strong> transcript grading and exam question generation. <strong>Why:</strong> Both tasks need structured JSON output and careful reasoning. Sonnet does this much better than Haiku. The grading rubric requires citing specific phrases from the transcript; the exam rubric requires legal accuracy and unambiguous distractors.</p>
+
+<h3>Graceful degradation</h3>
+<p><code>backend/ai/client.ts</code> exports an <code>isConfigured()</code> check. Every route handler short-circuits to a 503 when <code>ANTHROPIC_API_KEY</code> is missing. Non-AI features (Market, Beginner, Portfolio, Dashboard) all work without the key.</p>
+
+<h2 id="tour">9 — Codebase tour</h2>
+
+<div class="module">
+  <div class="module-name">frontend/components/landing/</div>
+  <div class="module-blurb">Marketing surface. Cinematic hero, featured listings, editorial sections.</div>
+  <ul class="module-files">
+    <li><code>Hero.tsx</code><span class="role">Cinematic dark hero with metallic ESTATIFY title + procedural city skyline + 3-photo carousel</span></li>
+    <li><code>FeaturedProperties.tsx</code><span class="role">Map + 6-card grid of headline listings</span></li>
+    <li><code>SplitStatement.tsx</code><span class="role">Editorial photo + statement section</span></li>
+    <li><code>FeatureTracks.tsx</code><span class="role">Three-track product overview</span></li>
+    <li><code>HowItWorks.tsx</code><span class="role">3-step value-prop</span></li>
+    <li><code>Pricing.tsx</code><span class="role">Free / Pro / Team tiers</span></li>
+  </ul>
+</div>
+
+<div class="module">
+  <div class="module-name">frontend/components/feature/</div>
+  <div class="module-blurb">Interactive views — one per route.</div>
+  <ul class="module-files">
+    <li><code>ChatInterface.tsx</code><span class="role">Agent simulation chat + session logger</span></li>
+    <li><code>ResultsScreen.tsx</code><span class="role">Graded results visualization</span></li>
+    <li><code>MarketBrowser.tsx</code><span class="role">Zillow-style filterable listings</span></li>
+    <li><code>DealAnalyzer.tsx</code><span class="role">Live financial model with strategy tabs</span></li>
+    <li><code>BeginnerView.tsx</code><span class="role">Listings + portfolio + simulate panel</span></li>
+    <li><code>BeginnerProperty.tsx</code><span class="role">Cash/Finance buy ticket + chart</span></li>
+    <li><code>PortfolioView.tsx</code><span class="role">Pro portfolio with time machine</span></li>
+    <li><code>ExamTrainer.tsx</code><span class="role">MC question UI + attempt history</span></li>
+    <li><code>DashboardView.tsx</code><span class="role">Tier + streak + recent activity</span></li>
+    <li><code>SystemView.tsx</code><span class="role">/system architecture explainer</span></li>
+  </ul>
+</div>
+
+<div class="module">
+  <div class="module-name">frontend/components/shared/</div>
+  <div class="module-blurb">Reused everywhere.</div>
+  <ul class="module-files">
+    <li><code>Nav.tsx</code><span class="role">Sticky adaptive nav (white-on-dark over hero, dark-on-light elsewhere)</span></li>
+    <li><code>Logo.tsx</code><span class="role">Estatify wordmark</span></li>
+    <li><code>HouseIllustration.tsx</code><span class="role">Procedural front-elevation SVG per property</span></li>
+    <li><code>NeighborhoodMap.tsx</code><span class="role">Top-down stylized SVG map of Tampa</span></li>
+    <li><code>PriceChart.tsx</code><span class="role">Line chart with hover tooltip</span></li>
+    <li><code>Sparkline.tsx</code><span class="role">Tiny inline chart for cards</span></li>
+    <li><code>PersonaAvatar.tsx</code><span class="role">Deterministic gradient avatar</span></li>
+    <li><code>DemoSeed.tsx</code><span class="role">Client-mounted hook that runs seedIfEmpty() once</span></li>
+  </ul>
+</div>
+
+<div class="module">
+  <div class="module-name">backend/ai/</div>
+  <div class="module-blurb">Server-only AI. Imports Anthropic SDK + secrets.</div>
+  <ul class="module-files">
+    <li><code>client.ts</code><span class="role">Anthropic SDK init + isConfigured() guard + model IDs</span></li>
+    <li><code>prompts.ts</code><span class="role">All long-form prompts (grading, exam, FHA guard)</span></li>
+    <li><code>chat.ts</code><span class="role">processChat(slug, messages)</span></li>
+    <li><code>grade.ts</code><span class="role">gradeTranscript(slug, messages, rating)</span></li>
+    <li><code>exam.ts</code><span class="role">generateExam(topic, count) + EXAM_TOPICS</span></li>
+  </ul>
+</div>
+
+<div class="module">
+  <div class="module-name">shared/</div>
+  <div class="module-blurb">Pure logic — used by BOTH client and server. Zero React, zero side effects.</div>
+  <ul class="module-files">
+    <li><code>types.ts</code><span class="role">Data types (Holding, BeginnerPortfolio, SessionRecord…)</span></li>
+    <li><code>properties.ts</code><span class="role">28 deterministic synthetic Tampa listings</span></li>
+    <li><code>scenarios.ts</code><span class="role">5 AI sim personas with FHA-guarded system prompts</span></li>
+    <li><code>finance.ts</code><span class="role">Mortgage / cap rate / DSCR / flip ROI math</span></li>
+    <li><code>elo.ts</code><span class="role">SimScore (ELO-style) math</span></li>
+    <li><code>beginnerSim.ts</code><span class="role">Forward portfolio simulation engine</span></li>
+    <li><code>marketHistory.ts</code><span class="role">Price walks + projections (charts)</span></li>
+  </ul>
+</div>
+
+<h2 id="extend">10 — How to extend</h2>
+
+<table>
+  <thead><tr><th>Task</th><th>First file to open</th></tr></thead>
+  <tbody>
+    <tr><td>Add a new agent simulation persona</td><td><code>shared/scenarios.ts</code></td></tr>
+    <tr><td>Add a new exam topic</td><td><code>backend/ai/prompts.ts</code> (EXAM_TOPICS)</td></tr>
+    <tr><td>Add a new strategy to Deal Analyzer</td><td><code>frontend/components/feature/DealAnalyzer.tsx</code></td></tr>
+    <tr><td>Tune SimScore tiers / thresholds</td><td><code>frontend/components/feature/DashboardView.tsx</code></td></tr>
+    <tr><td>Add a new market simulation scenario</td><td><code>shared/beginnerSim.ts</code> (SCENARIOS)</td></tr>
+    <tr><td>Add more synthetic properties</td><td><code>shared/properties.ts</code> (loop count)</td></tr>
+    <tr><td>Swap localStorage for a real DB</td><td><code>frontend/lib/store.ts</code> (helper bodies only)</td></tr>
+  </tbody>
+</table>
+
+<h2 id="demo">11 — Demo script (5 minutes)</h2>
+
+<h3>0:00 &mdash; Landing page</h3>
+<p>Open <code>/</code>. Scroll the cinematic hero. Procedural skyline drawn in SVG. Call out: &ldquo;This is the marketing surface. Everything below is the actual product.&rdquo;</p>
+
+<h3>0:30 &mdash; System architecture</h3>
+<p>Open <code>/system</code>. Walk through the 5 sections out loud. &ldquo;Four folders: app, frontend, backend, shared. Same separation a Node + React monorepo would have. Read this once and you can ship.&rdquo;</p>
+
+<h3>2:00 &mdash; Agent simulation</h3>
+<p>Open <code>/practice/motivated-seller</code>. Type 2-3 messages. Show the AI staying in character with hidden backstory. Click &ldquo;End call &amp; grade.&rdquo; &ldquo;Sonnet just graded the conversation against the win conditions. Look at the biggest miss &mdash; that&rsquo;s specific feedback, not a generic score.&rdquo;</p>
+
+<h3>3:30 &mdash; Deal Analyzer</h3>
+<p>Open <code>/market</code>, click a property. Tweak the down payment slider. Watch cap rate, DSCR, monthly cash flow recompute live. Switch to BRRRR strategy. &ldquo;Live financial math, no backend needed. Pure functions in <code>shared/finance.ts</code>.&rdquo;</p>
+
+<h3>4:30 &mdash; Beginner mode + simulate</h3>
+<p>Open <code>/beginner/[any property]</code>. Show cash-vs-finance toggle. Hit Simulate, switch to &ldquo;2008-style crash.&rdquo; Watch the equity chart drop. &ldquo;Five named scenarios, monthly compound, fully deterministic.&rdquo;</p>
+
+<h3>5:00 &mdash; Dashboard</h3>
+<p>Open <code>/dashboard</code>. SimScore tier, streak, sessions, holdings. &ldquo;Everything you just did is persisted in localStorage and feeds this view. DB migration is a one-file swap.&rdquo;</p>
+
+<h2 id="roadmap">12 — Roadmap and honest tradeoffs</h2>
+
+<h3>What&rsquo;s working</h3>
+<ul>
+  <li>The four-folder architecture is clean and explainable.</li>
+  <li>Synthetic data generator is realistic enough that the math feels meaningful.</li>
+  <li>AI roleplay + grading is differentiated &mdash; no incumbent (PrepAgent, Aceable, Kaplan, MaverickRE, Hyperbound) bundles all three tracks.</li>
+  <li>Codebase is small enough that a new contributor can be productive in a day.</li>
+</ul>
+
+<h3>What&rsquo;s risky</h3>
+<ul>
+  <li><strong>Practice as a standalone consumer SaaS is a hard sell.</strong> Research-validated: people don&rsquo;t pay for &ldquo;fun reps.&rdquo; They pay for transactional outcomes (deal analysis, retention insurance, exam pass guarantee).</li>
+  <li><strong>AI roleplay is crowded at the B2B layer.</strong> Hyperbound ($18M raised), MaverickRE, SalesGo are selling roleplay-as-a-service. Estatify&rsquo;s moat has to be real-estate-specific data and bundling.</li>
+  <li><strong>State-approved pre-license course pivot is a regulatory minefield.</strong> Each state is a 9-12 month approval process. Solo founder time-to-revenue is 12-18 months minimum.</li>
+</ul>
+
+<h3>Plausible paths forward</h3>
+<ul>
+  <li><strong>Path A &mdash; TikTok funnel + free product.</strong> Build an audience around &ldquo;Would you buy or sell?&rdquo; daily content. Monetize via brokerage cohort licenses in year 2.</li>
+  <li><strong>Path B &mdash; B2B brokerage retention.</strong> Sell to brokerage operations directors at $25-50/seat/mo as &ldquo;agent retention insurance.&rdquo; 75% of new agents quit, each lost agent = $5-15k recruiting cost wasted.</li>
+  <li><strong>Path C &mdash; Free aptitude test as top-of-funnel.</strong> &ldquo;Are you built for this?&rdquo; 90-second test, archetype result, shareable card. Funnels into the deeper product.</li>
+</ul>
+
+<div class="callout">
+  <p>Whatever go-to-market path we choose, the engineering foundation supports it. The core product loop &mdash; agent simulations + paper trading + exam prep &mdash; is genuinely differentiated and worth building. Architecture is solid. Codebase is maintainable.</p>
+</div>
+
+<p style="margin-top:48px; padding-top:18px; border-top:1px solid var(--rule); font-size:9pt; color:var(--muted); text-align:center;">End of document &middot; Estatify Architecture &amp; Product Overview &middot; v1.0</p>
+
+</div>
+</body>
+</html>

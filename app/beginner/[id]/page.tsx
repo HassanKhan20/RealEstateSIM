@@ -1,9 +1,9 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
-import Nav from "@/components/Nav";
-import Footer from "@/components/Footer";
-import BeginnerProperty from "@/components/BeginnerProperty";
-import { getProperty, PROPERTIES } from "@/lib/properties";
+import Nav from "@/frontend/components/shared/Nav";
+import Footer from "@/frontend/components/landing/Footer";
+import BeginnerProperty from "@/frontend/components/feature/BeginnerProperty";
+import { getProperty, PROPERTIES } from "@/shared/properties";
 
 export function generateStaticParams() {
   return PROPERTIES.map((p) => ({ id: p.id }));
